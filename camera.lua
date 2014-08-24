@@ -74,11 +74,15 @@ function Camera:update(dt)
 	end
 end
 
+function Camera:isVisible( x, y )
+	return x >= self.x and x <= self.x + self.w and y > self.x and y <= self.y + self.w
+end
+
 function Camera:follow( e )
 	self.followEty = e
 end
 
-function Camera:draw( viewport, universe )
+function Camera:draw( viewport, universe, big )
 	
 	local scaleX = viewport.w / self.w
 	local scaleY = viewport.h / self.h
@@ -89,13 +93,8 @@ function Camera:draw( viewport, universe )
 	
 	love.graphics.translate( -self.x, -self.y )
 	love.graphics.translate( viewport.x, viewport.y )
-	
-	
-	for i,o in ipairs(universe.planets) do
-		o:draw()
-	end
-	
-	universe.ship:draw()
+
+	universe:draw(big)
 	
 	love.graphics.pop()
 	

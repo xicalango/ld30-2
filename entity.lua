@@ -35,5 +35,9 @@ function Entity:keyreleased(key)
 end
 
 function Entity:dstSqTo(e)
-	return dstSq( e.x - self.x, e.y - self.y )
+	return dstSq( self.x, self.y, e.x, e.y )
+end
+
+function Entity:dirTo(e)
+	return toPol(e.x - self.x, e.y - self.y)
 end

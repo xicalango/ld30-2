@@ -27,3 +27,7 @@ function Planet:orbitFn()
 	end
 end
 
+function Planet:getOrbitSize()
+	return (self.props.size + 10)
+end
+

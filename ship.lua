@@ -20,6 +20,7 @@ function Ship:initialize( )
 	
 	self.letgo = false
 	
+	self.lastPlanet = nil
 	self.lastHomePlanet = nil
 	self.homePlanet = nil
 	
@@ -32,6 +33,8 @@ function Ship:initialize( )
 	self.speed = 200
 	
 	self.rotSpeed = 2
+	
+	self.fuel = 10
 	
 	self.firePs = love.graphics.newParticleSystem( love.graphics.newImage("assets/spark.png"), 256 )
 	
@@ -47,10 +50,15 @@ function Ship:initialize( )
 		255, 0, 0, 255,
 		255, 0, 0, 0 )
 	self.firePs:stop()
+	
+	self.lineLength = 2000
+	
+	self.boosterForce = 1
+	
+	self.connection = nil
 end
 
 function Ship:update(dt, state)
-
 		
 	if self.rotLeft then
 		self.rot = self.rot - dt * self.rotSpeed
@@ -63,6 +71,7 @@ function Ship:update(dt, state)
 		if self.letgo then
 			self.letgo = false
 			self.lastHomePlanet = self.homePlanet
+			self.lastPlanet = self.homePlanet
 			self.vx, self.vy = signum(self.x - self.ox) * self.speed , signum(self.y - self.oy)  * self.speed
 			self.homePlanet = nil
 			state:onLetGo(self)
@@ -77,13 +86,15 @@ function Ship:update(dt, state)
 		local forceX = 0
 		local forceY = 0
 		
-		if self.accel then
-			local dirX, dirY = toCart( 1, self.rot )
+		if self.accel and self.fuel >= 1 then
+			local dirX, dirY = toCart( self.boosterForce, self.rot )
 			forceX = forceX + dirX
 			forceY = forceY + dirY
 			
 			self.firePs:setDirection(self.rot + math.pi)
 			self.firePs:start()
+			
+			self.fuel = self.fuel - dt
 		end
 
 		
@@ -121,22 +132,55 @@ function Ship:update(dt, state)
 				break
 			end
 		end
-
+	
+		if self.connection:length() >= self.lineLength then
+			gameStateManager:changeState(GameOverState, state.universe, state.playerMoney)
+		end
 	end
 	
 	self.firePs:update(dt)
+
 			
 	self.graphics.rotation = self.rot + math.pi/2
 end
 
-function Ship:draw()
+function Ship:refuel(n)
+	self.fuel = self.fuel + n
+end
+
+function Ship:reline(n)
+	self.lineLength = self.lineLength + n
+end
+
+function Ship:draw(planets)
 	love.graphics.draw(self.firePs, self.x, self.y)
 
 	Entity.draw(self)
 	
-	local dirX, dirY = toCart( 20, self.rot )
 	
-	love.graphics.line( self.x, self.y, self.x + dirX, self.y + dirY )
+	if self.homePlanet == nil then
+		--love.graphics.line( self.x, self.y, self.x + self.vx, self.y + self.vy )
+
+		for i,p in ipairs(planets) do
+			local r, phi = self:dirTo(p)
+			
+			if r <= 3000 then
+			
+				local xx, yy = toCart( r/10, phi )
+
+				love.graphics.setColor(  (255 * (r/3000)), 255 - (255 * (r/3000)), 0, 128)
+				love.graphics.line( self.x, self.y, self.x + xx, self.y + yy )
+				
+				love.graphics.print( math.floor(r),  self.x + xx, self.y + yy)
+				
+			end
+		end
+
+	end
+end
+
+function Ship:remainingLength()
+	return self.lineLength - self.connection:length()
 end
 
 function Ship:setHomePlanet(planet)
@@ -155,6 +199,8 @@ function Ship:keypressed(key)
 		self.rotRight = true
 	elseif key == keyconfig.player[0].letgo then
 		self.letgo = true
+	elseif key == "t" then
+		self.lineLength = 0
 	end
 end
 

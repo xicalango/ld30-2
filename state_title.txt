@@ -1,0 +1,3 @@
+
+
+GameOverState = GameState:subclass("GameOverState")

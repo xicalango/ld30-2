@@ -14,10 +14,14 @@ require("entity")
 require("universe")
 require("planet")
 require("ship")
+require("connection")
 
 require("camera")
 
 require("state_ingame")
+require("state_gameover")
+require("state_title")
+
 
 keyconfig = require("keyconfig")
 
@@ -26,9 +30,8 @@ global = {
 	fullscreen = false
 }
 
-function love.load()
-
-	gameStateManager = GameStateManager:new()
+function setupNewGame()
+	love.graphics.setFont(stdFont)
 	
 	local ship = Ship:new()
 	
@@ -36,10 +39,24 @@ function love.load()
 	
 	ship:setHomePlanet(universe.planets[1])
 	
-	gameStateManager:registerState(InGameState)
+	local c = universe:addConnection( universe.planets[1], ship )
+	
+	ship.connection = c 
 	
 	gameStateManager:changeState(InGameState, universe)
+end
+
+function love.load()
+
+	stdFont = love.graphics.getFont()
+
+	gameStateManager = GameStateManager:new()
 	
+	gameStateManager:registerState(InGameState)
+	gameStateManager:registerState(GameOverState)
+	gameStateManager:registerState(TitleState)
+
+	gameStateManager:changeState(TitleState)
 end
 
 
@@ -64,6 +81,8 @@ function love.keypressed(key)
     	if love.window.setFullscreen(not fullscreen, "desktop") then
 			fullscreen = not fullscreen
 		end
+	elseif key == "escape" then
+		love.event.push('quit')
 	end
 
 	gameStateManager:keypressed(key)

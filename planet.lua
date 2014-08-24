@@ -17,6 +17,10 @@ function Planet:initialize( x, y, props )
 
 end
 
+function Planet:inOrbit(e)
+	return dstSq(e.x, e.y, self.x, self.y) < (self.props.size + 10) * (self.props.size + 10)
+end
+
 function Planet:orbitFn()
 	return function( pos )
 		return self.x + (self.props.size + 10) * math.cos( pos  * math.pi ), self.y + (self.props.size + 10) * math.sin( pos  * math.pi )

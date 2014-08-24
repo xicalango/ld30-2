@@ -6,9 +6,9 @@ function Universe:initialize(ship)
 
 	self.planets = {}
 	
-	for i = 1, 10 do
-		local x = love.math.random(0, 2000)
-		local y = love.math.random(0, 2000)
+	for i = 1, 20 do
+		local x = love.math.random(0, 10000)
+		local y = love.math.random(0, 10000)
 		
 		local size = love.math.random(10, 200)
 		

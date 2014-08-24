@@ -27,13 +27,18 @@ function InGameState:keypressed(key)
 	self.universe.ship:keypressed(key)
 end
 
+function InGameState:keyreleased(key)
+	self.universe.ship:keyreleased(key)
+end
+
 function InGameState:onLetGo(ship)
 	self.camera:follow(ship)
-	self.camera:zoomDst( 4 )
+	self.camera:zoomDst( 2 )
 end
 
 function InGameState:onFoundPlanet(ship, p)
 	self.camera:follow(p)
+	self.camera:zoomDst( 1 )
 	--self.camera:resetZoom()
 	--self.camera:zoomDst( .5 )
 end

@@ -14,6 +14,9 @@ function Camera:initialize( x, y, w, h )
 	self.dw = nil
 	self.dh = nil
 	
+	self.dx = nil
+	self.dy = nil
+	
 	self.followEty = nil
 end
 
